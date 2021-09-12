@@ -59,7 +59,7 @@ export type Action = UpdateItemAction | UpdateMenuAction | UpdateMenuAndItemActi
 export type Conf = {
   menu: Menu,
   debug?: boolean,
-  traybinPath?: boolean | string
+  traybinPath?: string
 }
 
 const getTrayBinPath = (debug: boolean = false, traybinPath?: string  ) => {
