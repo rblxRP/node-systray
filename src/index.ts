@@ -59,30 +59,17 @@ export type Action = UpdateItemAction | UpdateMenuAction | UpdateMenuAndItemActi
 export type Conf = {
   menu: Menu,
   debug?: boolean,
-  copyDir?: boolean | string
+  traybinPath?: boolean | string
 }
 
-const getTrayBinPath = (debug: boolean = false, copyDir: boolean | string = false) => {
+const getTrayBinPath = (debug: boolean = false, traybinPath?: string  ) => {
   const binName = ({
     win32: `tray_windows${debug ? '' : '_release'}.exe`,
     darwin: `tray_darwin${debug ? '' : '_release'}`,
     linux: `tray_linux${debug ? '' : '_release'}`,
   })[process.platform]
+  if (traybinPath) return path.resolve(path.join(traybinPath,binName))
   const binPath = path.resolve(`${__dirname}/../traybin/${binName}`)
-  if (copyDir) {
-    copyDir = path.join((
-      typeof copyDir === 'string'
-        ? copyDir
-        : `${os.homedir()}/.cache/node-systray/`), pkg.version)
-
-    const copyDistPath = path.join(copyDir, binName)
-    if (!fs.existsSync(copyDistPath)) {
-      fs.ensureDirSync(copyDir)
-      fs.copySync(binPath, copyDistPath)
-    }
-
-    return copyDistPath
-  }
   return binPath
 }
 const CHECK_STR = ' (√)'
@@ -107,7 +94,7 @@ export default class SysTray extends EventEmitter {
   constructor(conf: Conf) {
     super()
     this._conf = conf
-    this._binPath = getTrayBinPath(conf.debug, conf.copyDir)
+    this._binPath = getTrayBinPath(conf.debug, conf.traybinPath)
     this._process = child.spawn(this._binPath, [], {
       windowsHide: true
     })
